@@ -1,0 +1,22 @@
+# Local Environment & Secrets
+.env
+/specification/security/secrets.broker.yaml
+*.pem
+*.key
+
+# Python / Colab Artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+/content/STRATA_GEOMETRIC/
+
+# Local Databases (Market Data & Legal Platform)
+*.db
+*.sqlite3
+
+# OS Specific
+.DS_Store
+Thumbs.db
+
+# Documentation / Diagrams
+*.mmd.png
