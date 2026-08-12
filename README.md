@@ -19,10 +19,10 @@ The system operates under the **Dissent-First Feedback Protocol**, requiring adv
 
 ## Getting Started
 
-1. **Clone the Repo:** `git clone [url]`
+1. **Clone the Repo:** `git clone https://github.com/AxelJohnson1988/phx-os-architecture-repo.git`
 2. **Install Specs:** `pip install -r requirements.txt`
 3. **Verify Integrity:** Run `/specification/verification/matrix.yaml` to check compliance gates.
 
 ## Licensing
 
-Licensed under **Functional Source License 1.0 (FSL-1.0)**. Users are free to view, modify, and run the code. Commercial cloud hosting is restricted for the initial DOSP window.
+Licensed under **Functional Source License 1.1-MIT (FSL-1.1-MIT)**. Users are free to view, modify, and run the code. Commercial cloud hosting is restricted for the initial DOSP window.
