@@ -20,9 +20,9 @@ The system operates under the **Dissent-First Feedback Protocol**, requiring adv
 ## Getting Started
 
 1. **Clone the Repo:** `git clone https://github.com/AxelJohnson1988/phx-os-architecture-repo.git`
-2. **Install Specs:** `pip install -r requirements.txt`
-3. **Verify Integrity:** Run `/specification/verification/matrix.yaml` to check compliance gates.
+2. **Review the Architecture Baseline:** Start with this README to understand the platform model, governance posture, and component boundaries.
+3. **Review the License Terms:** Read `/LICENSE` before reusing or extending the repository because commercial use is governed by FSL-1.1-MIT.
 
 ## Licensing
 
-Licensed under **Functional Source License 1.1-MIT (FSL-1.1-MIT)**. Users are free to view, modify, and run the code. Commercial cloud hosting is restricted for the initial DOSP window.
+Licensed under **Functional Source License 1.1-MIT (FSL-1.1-MIT)**. See `/LICENSE` for the authoritative terms, including the future conversion to MIT.
