@@ -1,0 +1,26 @@
+{
+  "job_id": "compute-job-001",
+  "status": "COMPLETED",
+  "executor": "remote:google-colab",
+  "runtime_type": "GPU-T4",
+  "gpu_available": true,
+  "gpu_name": "Tesla T4",
+  "cuda_available": true,
+  "probe_output": "nvidia-smi detected Tesla T4",
+  "input_hash": "a8f5f167f44f4964e6c998dee827110c",
+  "artifacts": [
+    {
+      "name": "model_output.pt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    }
+  ],
+  "started_at": "2026-09-14T18:00:00Z",
+  "completed_at": "2026-09-14T18:05:00Z",
+  "governed_by": "Local Warden",
+  "validation": {
+    "validated_locally": true,
+    "decision": "ACCEPTED",
+    "reason": "Receipt schema matched and artifact hashes were verified locally."
+  }
+}

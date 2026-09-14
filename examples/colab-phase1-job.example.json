@@ -1,0 +1,47 @@
+{
+  "job_id": "compute-job-001",
+  "authorized_by": "Local Warden",
+  "executor": "remote:google-colab",
+  "workload_type": "hardware-attestation",
+  "approved_payload": {
+    "entrypoint": "phase1.hardware_probe",
+    "description": "Start a disposable Colab runtime and report GPU/CUDA facts.",
+    "arguments": []
+  },
+  "input_hash": "a8f5f167f44f4964e6c998dee827110c",
+  "output_directory": "/artifacts/phase1/compute-job-001",
+  "artifact_manifest": [
+    {
+      "name": "probe_output.json",
+      "required": true,
+      "content_type": "application/json",
+      "description": "Deterministic runtime probe results."
+    }
+  ],
+  "runtime_requirements": {
+    "disposable_runtime": true,
+    "gpu_required": true,
+    "attestation_fields": [
+      "runtime_type",
+      "gpu_available",
+      "gpu_name",
+      "cuda_available",
+      "probe_output",
+      "started_at",
+      "completed_at"
+    ]
+  },
+  "failure_policy": {
+    "record_failed_receipt": true,
+    "reject_on": [
+      "adapter-connection-failure",
+      "runtime-creation-failure",
+      "gpu-unavailable",
+      "artifact-missing",
+      "artifact-hash-mismatch",
+      "receipt-malformed",
+      "payload-drift",
+      "missing-validation-decision"
+    ]
+  }
+}

@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axeljohnson1988.github.io/phx-os-architecture-repo/schemas/colab-phase1-receipt.schema.json",
+  "title": "Colab MCP Phase 1 Receipt",
+  "description": "Append-only provenance receipt for a single Colab MCP Phase 1 execution attempt.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "job_id",
+    "status",
+    "executor",
+    "runtime_type",
+    "input_hash",
+    "artifacts",
+    "started_at",
+    "completed_at",
+    "governed_by",
+    "validation"
+  ],
+  "properties": {
+    "job_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{2,63}$"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "COMPLETED",
+        "FAILED",
+        "REJECTED"
+      ]
+    },
+    "executor": {
+      "type": "string",
+      "const": "remote:google-colab"
+    },
+    "runtime_type": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Reported remote runtime class, such as GPU-T4."
+    },
+    "gpu_available": {
+      "type": "boolean"
+    },
+    "gpu_name": {
+      "type": "string"
+    },
+    "cuda_available": {
+      "type": "boolean"
+    },
+    "probe_output": {
+      "type": "string"
+    },
+    "input_hash": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{32,64}$"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "sha256"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{64}$"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "governed_by": {
+      "type": "string",
+      "const": "Local Warden"
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "validated_locally",
+        "decision"
+      ],
+      "properties": {
+        "validated_locally": {
+          "type": "boolean",
+          "const": true
+        },
+        "decision": {
+          "type": "string",
+          "enum": [
+            "ACCEPTED",
+            "REJECTED"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
