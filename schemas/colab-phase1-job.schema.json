@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axeljohnson1988.github.io/phx-os-architecture-repo/schemas/colab-phase1-job.schema.json",
+  "title": "Colab MCP Phase 1 Job Contract",
+  "description": "Schema for a single authorized Colab MCP Phase 1 isolated execution job.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "job_id",
+    "authorized_by",
+    "executor",
+    "workload_type",
+    "approved_payload",
+    "input_hash",
+    "output_directory",
+    "artifact_manifest",
+    "runtime_requirements",
+    "failure_policy"
+  ],
+  "properties": {
+    "job_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{2,63}$",
+      "description": "Stable identifier for the single authorized execution request."
+    },
+    "authorized_by": {
+      "type": "string",
+      "const": "Local Warden",
+      "description": "Authority that approved this job contract."
+    },
+    "executor": {
+      "type": "string",
+      "const": "remote:google-colab",
+      "description": "Bounded remote execution target."
+    },
+    "workload_type": {
+      "type": "string",
+      "enum": [
+        "hardware-attestation",
+        "artifact-generation"
+      ]
+    },
+    "approved_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entrypoint",
+        "description"
+      ],
+      "properties": {
+        "entrypoint": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Approved command, notebook cell, or script entrypoint identifier."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable description of the approved payload."
+        },
+        "arguments": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      }
+    },
+    "input_hash": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{32,64}$",
+      "description": "Digest over the approved inputs or payload bundle."
+    },
+    "output_directory": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Approved target directory for returned artifacts."
+    },
+    "artifact_manifest": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "required"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "content_type": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "runtime_requirements": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "disposable_runtime",
+        "gpu_required",
+        "attestation_fields"
+      ],
+      "properties": {
+        "disposable_runtime": {
+          "type": "boolean",
+          "const": true
+        },
+        "gpu_required": {
+          "type": "boolean"
+        },
+        "attestation_fields": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "enum": [
+              "runtime_type",
+              "gpu_available",
+              "gpu_name",
+              "cuda_available",
+              "probe_output",
+              "started_at",
+              "completed_at"
+            ]
+          }
+        }
+      }
+    },
+    "failure_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record_failed_receipt",
+        "reject_on"
+      ],
+      "properties": {
+        "record_failed_receipt": {
+          "type": "boolean",
+          "const": true
+        },
+        "reject_on": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "enum": [
+              "adapter-connection-failure",
+              "runtime-creation-failure",
+              "gpu-unavailable",
+              "artifact-missing",
+              "artifact-hash-mismatch",
+              "receipt-malformed",
+              "payload-drift",
+              "missing-validation-decision"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
