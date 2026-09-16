@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axeljohnson1988.github.io/phx-os-architecture-repo/schemas/warden-request.schema.json",
+  "title": "Phoenix Warden Request",
+  "description": "Strict request/proposal contract entering the Warden boundary. A request is not an authorization.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["request_id", "idempotency_key", "principal", "action", "target", "proposed_change", "created_at"],
+  "properties": {
+    "request_id": {"type": "string", "pattern": "^req_[A-Za-z0-9_-]{8,128}$"},
+    "idempotency_key": {"type": "string", "minLength": 8, "maxLength": 128},
+    "principal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["subject", "source"],
+      "properties": {
+        "subject": {"type": "string", "minLength": 1, "maxLength": 256},
+        "source": {"type": "string", "enum": ["human", "agent", "service"]}
+      }
+    },
+    "action": {"type": "string", "pattern": "^[a-z][a-z0-9._:-]{1,127}$"},
+    "target": {"type": "string", "minLength": 1, "maxLength": 512},
+    "proposed_change": {"type": "object", "additionalProperties": true},
+    "created_at": {"type": "string", "format": "date-time"},
+    "context": {"type": "object", "additionalProperties": true}
+  }
+}
