@@ -36,6 +36,34 @@ vLLM  Ollama
 
 Vercel, the API adapter, LiteLLM, inference engines, agents, and external services are not canonical state authorities.
 
+## Capability Modules and Prompt Router
+
+The repository now includes a capability-module routing layer at [`warden/capabilities.py`](warden/capabilities.py):
+
+- **Single module contract** for integrations (`CapabilityModuleContract`) with standardized input/output, auth, risk, cost, and audit metadata.
+- **Capability catalog** (`CapabilityCatalog`) that registers each integration module with domains, actions, permissions, compliance sensitivity, and aliases.
+- **Prompt router** (`CapabilityRouter`) that parses prompt intent, scores candidate modules, returns primary and fallback matches, and supports explicit `no-safe-match`.
+- **Warden policy enforcement** by treating route decisions as proposals (`action=capability.route`) that must pass a policy check before execution.
+- **Append-only evidence ledger** (`EvidenceLedger`) with hash-chained records for routing, policy outcomes, confidence, and execution state.
+- **Tiered entitlements** (`PlanTier` + `TieredEntitlementPolicy`) for free/pro/enterprise access control, including enterprise-grade high-risk routing with confirmation.
+
+### Minimal usage
+
+```python
+from warden.capabilities import CapabilityRouter, PlanTier, build_default_catalog
+from warden.kernel import WardenKernel
+
+catalog = build_default_catalog()
+kernel = WardenKernel(policy=...)  # provide capability.route policy
+router = CapabilityRouter(catalog, policy_check=kernel.authorize_proposal)
+
+decision = router.route(
+    prompt="Search MDN browser compatibility for fetch",
+    principal={"subject": "human:alice", "source": "human"},
+    plan_tier=PlanTier.FREE,
+)
+```
+
 ## Colab MCP Phase 1
 
 This repository defines Colab MCP as an external remote compute adapter for isolated Phase 1 validation, not as part of the Warden/Kernel trust base.
