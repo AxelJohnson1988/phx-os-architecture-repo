@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axeljohnson1988.github.io/phx-os-architecture-repo/schemas/warden-receipt.schema.json",
+  "title": "Phoenix Warden Receipt",
+  "description": "Receipt emitted by Warden after a request is accepted or rejected.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["event_id", "request_id", "decision", "recorded_at", "before_state_hash", "after_state_hash", "event_hash"],
+  "properties": {
+    "event_id": {"type": "string", "pattern": "^evt_[A-Za-z0-9_-]{8,128}$"},
+    "request_id": {"type": "string", "pattern": "^req_[A-Za-z0-9_-]{8,128}$"},
+    "decision": {"type": "string", "enum": ["ACCEPTED", "REJECTED"]},
+    "recorded_at": {"type": "string", "format": "date-time"},
+    "before_state_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "after_state_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "event_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "reason": {"type": "string"},
+    "state_delta": {"type": "object", "additionalProperties": true}
+  }
+}
