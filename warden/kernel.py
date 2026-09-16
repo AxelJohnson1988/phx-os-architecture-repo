@@ -84,6 +84,10 @@ class WardenKernel:
         self._idempotency[request.idempotency_key] = request.request_id
         return request.request_id
 
+    def authorize_proposal(self, request: WardenRequest) -> tuple[bool, str]:
+        """Evaluate policy for a proposal without mutating canonical state."""
+        return self._policy(request)
+
     def authorize_and_commit(self, request_id: str) -> WardenReceipt:
         """Authorize and commit one previously submitted proposal."""
         request = self._requests[request_id]
