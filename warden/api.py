@@ -1,16 +1,37 @@
 """Dependency-free HTTP reference for the Phoenix API boundary.
 
-The HTTP layer can submit/read requests, but it has no canonical-state writer.
-Authorization/commit remains a WardenKernel operation behind the boundary.
+The HTTP layer can submit/read requests and validate external receipts, but it
+has no canonical-state writer. Authorization/commit remains a WardenKernel
+operation behind the boundary.
 """
 
 from __future__ import annotations
 
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
+import re
 from urllib.parse import urlparse
 
 from .kernel import WardenKernel, WardenRequest
+
+_SHA256 = re.compile(r"^[a-f0-9]{64}$")
+
+
+def validate_receipt_shape(raw: dict) -> tuple[bool, str]:
+    """Validate the minimum receipt envelope without accepting it as truth."""
+    required = {
+        "event_id", "request_id", "decision", "recorded_at",
+        "before_state_hash", "after_state_hash", "event_hash",
+    }
+    missing = sorted(required - raw.keys())
+    if missing:
+        return False, "missing-fields:" + ",".join(missing)
+    if raw["decision"] not in {"ACCEPTED", "REJECTED"}:
+        return False, "invalid-decision"
+    for field in ("before_state_hash", "after_state_hash", "event_hash"):
+        if not isinstance(raw[field], str) or not _SHA256.fullmatch(raw[field]):
+            return False, f"invalid-{field}"
+    return True, "shape-valid"
 
 
 class WardenAPIHandler(BaseHTTPRequestHandler):
@@ -24,30 +45,48 @@ class WardenAPIHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _body(self) -> dict:
+        length = int(self.headers.get("Content-Length", "0"))
+        return json.loads(self.rfile.read(length))
+
     def do_POST(self) -> None:  # noqa: N802
         path = urlparse(self.path).path
-        if path != "/v1/warden/requests":
-            self._json(404, {"error": "not-found"})
+
+        if path == "/v1/warden/requests":
+            try:
+                raw = self._body()
+                request = WardenRequest(
+                    request_id=raw["request_id"],
+                    idempotency_key=raw["idempotency_key"],
+                    principal=raw["principal"],
+                    action=raw["action"],
+                    target=raw["target"],
+                    proposed_change=raw["proposed_change"],
+                    created_at=raw["created_at"],
+                )
+                request_id = self.kernel.submit(request)
+            except (KeyError, TypeError, json.JSONDecodeError, ValueError) as exc:
+                self._json(400, {"error": "invalid-request", "detail": str(exc)})
+                return
+            self._json(202, {"request_id": request_id, "state": "PENDING"})
             return
 
-        length = int(self.headers.get("Content-Length", "0"))
-        try:
-            raw = json.loads(self.rfile.read(length))
-            request = WardenRequest(
-                request_id=raw["request_id"],
-                idempotency_key=raw["idempotency_key"],
-                principal=raw["principal"],
-                action=raw["action"],
-                target=raw["target"],
-                proposed_change=raw["proposed_change"],
-                created_at=raw["created_at"],
-            )
-            request_id = self.kernel.submit(request)
-        except (KeyError, TypeError, json.JSONDecodeError, ValueError) as exc:
-            self._json(400, {"error": "invalid-request", "detail": str(exc)})
+        if path == "/v1/warden/receipts":
+            try:
+                raw = self._body()
+                valid, reason = validate_receipt_shape(raw)
+            except (TypeError, json.JSONDecodeError, ValueError) as exc:
+                self._json(400, {"error": "invalid-receipt", "detail": str(exc)})
+                return
+            if not valid:
+                self._json(422, {"error": "receipt-rejected", "reason": reason})
+                return
+            # Validation here is only an intake check. It does not authorize or
+            # mutate canonical state; Warden policy must perform that decision.
+            self._json(202, {"state": "PENDING_VALIDATION", "validation": reason})
             return
 
-        self._json(202, {"request_id": request_id, "state": "PENDING"})
+        self._json(404, {"error": "not-found"})
 
     def do_GET(self) -> None:  # noqa: N802
         path = urlparse(self.path).path
@@ -74,7 +113,6 @@ class WardenAPIHandler(BaseHTTPRequestHandler):
 
 
 def serve(kernel: WardenKernel, host: str = "127.0.0.1", port: int = 8787) -> ThreadingHTTPServer:
-    """Start the reference API. Bind locally by default; put a hardened gateway in front in production."""
+    """Start the reference API. Bind locally by default; harden before public deployment."""
     handler = type("BoundWardenAPIHandler", (WardenAPIHandler,), {"kernel": kernel})
-    server = ThreadingHTTPServer((host, port), handler)
-    return server
+    return ThreadingHTTPServer((host, port), handler)
