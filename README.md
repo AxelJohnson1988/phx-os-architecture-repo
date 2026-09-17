@@ -10,9 +10,11 @@ Core implementation and contracts:
 
 - [`docs/PHOENIX_CONSTITUTION.md`](docs/PHOENIX_CONSTITUTION.md) — trust boundaries, constitutional invariants, and governance rules
 - [`docs/warden-api.md`](docs/warden-api.md) — Warden API boundary and endpoint contract
-- [`warden-mcp-registry.json`](warden-mcp-registry.json) — Phase 1 Warden runtime manifest for read-only Notion/GitHub MCP registration
+- [`warden-mcp-registry.json`](warden-mcp-registry.json) — Phase 2 Warden runtime manifest spanning read-only Notion/GitHub MCPs and governed local sandbox execution
 - [`schemas/warden-request.schema.json`](schemas/warden-request.schema.json) — strict request/proposal contract
 - [`schemas/warden-receipt.schema.json`](schemas/warden-receipt.schema.json) — Warden receipt contract
+- [`schemas/warden-circuit-breaker-config.schema.json`](schemas/warden-circuit-breaker-config.schema.json) — fail-closed circuit-breaker policy for local sandbox write endpoints
+- [`schemas/warden-execution-audit-event.schema.json`](schemas/warden-execution-audit-event.schema.json) — ECES audit event contract for signed causal write receipts
 - [`warden/kernel.py`](warden/kernel.py) — dependency-free reference implementation of Warden-only state transitions
 - [`warden/api.py`](warden/api.py) — dependency-free HTTP boundary reference
 - [`tests/test_warden_boundary.py`](tests/test_warden_boundary.py) — tests enforcing no direct mutation outside Warden

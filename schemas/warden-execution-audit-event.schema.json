@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axeljohnson1988.github.io/phx-os-architecture-repo/schemas/warden-execution-audit-event.schema.json",
+  "title": "WardenExecutionAuditEvent",
+  "description": "Signed ECES event emitted for every Phase 2 sandbox write decision.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "parent_event_id",
+    "contract_hash",
+    "principal",
+    "endpoint",
+    "decision",
+    "input_hash",
+    "delta_hash",
+    "envelope_hash",
+    "isolation_profile",
+    "commit_seq",
+    "timestamp_rec",
+    "signature"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "description": "SHA-256 hash uniquely identifying this proof atom."
+    },
+    "parent_event_id": {
+      "type": "string",
+      "description": "Hash of the causal parent event in the execution DAG."
+    },
+    "contract_hash": {
+      "type": "string",
+      "description": "Hash of the active Warden contract or manifest governing this run."
+    },
+    "principal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "agent_id",
+        "user_id"
+      ],
+      "properties": {
+        "agent_id": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        }
+      }
+    },
+    "endpoint": {
+      "type": "string",
+      "enum": [
+        "sandbox.execute_code",
+        "sandbox.write_file"
+      ],
+      "description": "The Phase 2 local execution tool invoked."
+    },
+    "authorized_scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Exact paths or capability patterns authorized by the gateway."
+    },
+    "decision": {
+      "type": "string",
+      "enum": [
+        "allow",
+        "deny"
+      ],
+      "description": "Outcome of the policy enforcement point gate check."
+    },
+    "input_hash": {
+      "type": "string",
+      "description": "SHA-256 hash of the input script or file payload."
+    },
+    "delta_hash": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "SHA-256 hash of the resulting state modification or diff; null on deny."
+    },
+    "envelope_hash": {
+      "type": "string",
+      "description": "Hash over canonical replay fields including tool schema, model version, and random seeds."
+    },
+    "isolation_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runtime",
+        "non_root",
+        "read_only_rootfs"
+      ],
+      "properties": {
+        "runtime": {
+          "type": "string",
+          "enum": [
+            "kata-microvm",
+            "gvisor",
+            "firecracker"
+          ]
+        },
+        "non_root": {
+          "type": "boolean"
+        },
+        "read_only_rootfs": {
+          "type": "boolean"
+        },
+        "container_id": {
+          "type": "string"
+        }
+      }
+    },
+    "commit_seq": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Monotonically increasing sequence number assigned by the recorder."
+    },
+    "timestamp_rec": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Authoritative timestamp assigned by the trace recorder clock."
+    },
+    "signature": {
+      "type": "string",
+      "description": "EUF-CMA signature of the event serialization signed by the gateway or recorder key."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "decision": {
+            "const": "deny"
+          }
+        },
+        "required": [
+          "decision"
+        ]
+      },
+      "then": {
+        "properties": {
+          "delta_hash": {
+            "type": "null"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "delta_hash": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
+}

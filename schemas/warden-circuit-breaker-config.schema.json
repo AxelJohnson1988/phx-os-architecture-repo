@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axeljohnson1988.github.io/phx-os-architecture-repo/schemas/warden-circuit-breaker-config.schema.json",
+  "title": "WardenCircuitBreakerConfig",
+  "description": "Fail-closed runtime circuit-breaker policy for Phase 2 local sandbox execution.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eval_timing",
+    "default_state",
+    "failure_thresholds",
+    "recovery_policy"
+  ],
+  "properties": {
+    "eval_timing": {
+      "type": "string",
+      "enum": [
+        "invocation",
+        "pre_tool_execution",
+        "continuous"
+      ],
+      "description": "When the circuit-breaker state is evaluated."
+    },
+    "default_state": {
+      "type": "string",
+      "enum": [
+        "fail_closed",
+        "fail_open"
+      ],
+      "default": "fail_closed",
+      "description": "Default posture if governance arbitrator or health check is unreachable."
+    },
+    "failure_thresholds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "consecutive_failures",
+        "error_rate_percentage",
+        "evaluation_window_seconds"
+      ],
+      "properties": {
+        "consecutive_failures": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 3,
+          "description": "Consecutive authorization or sandbox failures before tripping to OPEN."
+        },
+        "error_rate_percentage": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "default": 10.0,
+          "description": "Percentage of failed invocations within the evaluation window."
+        },
+        "evaluation_window_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 60,
+          "description": "Rolling time window for error rate computation."
+        }
+      }
+    },
+    "recovery_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cooldown_seconds",
+        "half_open_max_trials"
+      ],
+      "properties": {
+        "cooldown_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 300,
+          "description": "Time in OPEN state before transitioning to HALF_OPEN probe mode."
+        },
+        "half_open_max_trials": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 2,
+          "description": "Number of successful probe invocations required to reset to CLOSED."
+        }
+      }
+    },
+    "monitored_signals": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "arbitrator_unreachable",
+          "policy_drift_detected",
+          "isolation_escape_attempt",
+          "resource_exhaustion_cgroup",
+          "unauthorized_egress_attempt"
+        ]
+      },
+      "uniqueItems": true,
+      "description": "Signals that can trip the runtime into fail-closed mode."
+    }
+  }
+}

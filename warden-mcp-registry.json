@@ -1,5 +1,5 @@
 {
-  "spec_version": "UFS-MANIFEST-v0.1",
+  "spec_version": "UFS-MANIFEST-v0.2",
   "organization": "SacredSystemsArchitects",
   "system": "Phoenix Protocol",
   "kernel": {
@@ -36,12 +36,64 @@
         "github.get_file",
         "github.get_pull_request"
       ]
+    },
+    {
+      "provider": "local_sandbox",
+      "role": "Execution Environment",
+      "access_level": "Write-Execution",
+      "runtime_isolation": "kata-microvm",
+      "security_profile": {
+        "run_as_root": false,
+        "cap_drop": [
+          "ALL"
+        ],
+        "read_only_rootfs": true,
+        "no_new_privileges": true
+      },
+      "resource_constraints": {
+        "cpus": "0.5",
+        "memory": "512M",
+        "pids_limit": 100
+      },
+      "approval_gate": "human_authorization_required",
+      "endpoints": [
+        "sandbox.execute_code",
+        "sandbox.write_file"
+      ],
+      "circuit_breaker": {
+        "eval_timing": "invocation",
+        "default_state": "fail_closed",
+        "failure_thresholds": {
+          "consecutive_failures": 3,
+          "error_rate_percentage": 10.0,
+          "evaluation_window_seconds": 60
+        },
+        "recovery_policy": {
+          "cooldown_seconds": 300,
+          "half_open_max_trials": 2
+        },
+        "monitored_signals": [
+          "arbitrator_unreachable",
+          "policy_drift_detected",
+          "isolation_escape_attempt",
+          "resource_exhaustion_cgroup",
+          "unauthorized_egress_attempt"
+        ]
+      },
+      "audit_event_stream": {
+        "format": "ECES",
+        "schema": "schemas/warden-execution-audit-event.schema.json",
+        "append_only": true,
+        "signed": true
+      }
     }
   ],
   "governance_pipeline": {
-    "phase": 1,
+    "phase": 2,
     "drift_detection": "active",
     "execution_gate": "human_authorization_required",
-    "provenance_hash": "GPAM"
+    "provenance_hash": "GPAM",
+    "circuit_breaker_schema": "schemas/warden-circuit-breaker-config.schema.json",
+    "audit_event_schema": "schemas/warden-execution-audit-event.schema.json"
   }
 }
