@@ -10,6 +10,7 @@ Core implementation and contracts:
 
 - [`docs/PHOENIX_CONSTITUTION.md`](docs/PHOENIX_CONSTITUTION.md) — trust boundaries, constitutional invariants, and governance rules
 - [`docs/warden-api.md`](docs/warden-api.md) — Warden API boundary and endpoint contract
+- [`warden-mcp-registry.json`](warden-mcp-registry.json) — Phase 1 Warden runtime manifest for read-only Notion/GitHub MCP registration
 - [`schemas/warden-request.schema.json`](schemas/warden-request.schema.json) — strict request/proposal contract
 - [`schemas/warden-receipt.schema.json`](schemas/warden-receipt.schema.json) — Warden receipt contract
 - [`warden/kernel.py`](warden/kernel.py) — dependency-free reference implementation of Warden-only state transitions

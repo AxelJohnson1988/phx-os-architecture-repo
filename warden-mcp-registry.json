@@ -1,0 +1,47 @@
+{
+  "spec_version": "UFS-MANIFEST-v0.1",
+  "organization": "SacredSystemsArchitects",
+  "system": "Phoenix Protocol",
+  "kernel": {
+    "name": "Warden Daemon",
+    "mode": "Zero-Standing-Privileges",
+    "arbitrator": "warden.authorize_proposal",
+    "ledger": "warden.append_ledger"
+  },
+  "namespaces": [
+    {
+      "provider": "notion",
+      "role": "Human HQ",
+      "access_level": "Read-Only",
+      "endpoints": [
+        "notion.search",
+        "notion.fetch"
+      ],
+      "intent_vector": "Specifications & Context"
+    },
+    {
+      "provider": "github",
+      "role": "Engineering Record",
+      "access_level": "Read-Only",
+      "repository": "AxelJohnson1988/phx-os-architecture-repo",
+      "permissions": {
+        "contents": "read",
+        "metadata": "read",
+        "issues": "read",
+        "pull_requests": "read",
+        "actions": "read",
+        "commit_statuses": "read"
+      },
+      "endpoints": [
+        "github.get_file",
+        "github.get_pull_request"
+      ]
+    }
+  ],
+  "governance_pipeline": {
+    "phase": 1,
+    "drift_detection": "active",
+    "execution_gate": "human_authorization_required",
+    "provenance_hash": "GPAM"
+  }
+}
